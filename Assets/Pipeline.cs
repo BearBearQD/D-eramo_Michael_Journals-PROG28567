@@ -5,7 +5,7 @@ public class Pipeline : MonoBehaviour
 {
     public Camera cam;
     private Vector2 startP;
-    public float spa = 0.1f; // 每隔 0.1 秒记录点
+    public float spa = 0.1f;
     private float timer = 0f;
 
     private List<Vector2> poi = new List<Vector2>();
