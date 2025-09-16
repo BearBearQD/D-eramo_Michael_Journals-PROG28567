@@ -13,6 +13,8 @@ public class Player : MonoBehaviour
     public float BombTrailSpacing = 3f;
     public int numberOfTrailBombs = 4;
 
+    public float warpRatio = 0.5f;
+
     public float spawnDistance;
 
     // Update is called once per frame
@@ -30,6 +32,10 @@ public class Player : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.C))
         {
             SpawnBombAtRandomCorner(spawnDistance);
+        }
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            WarpTowardsTarget(enemyTransform, warpRatio);
         }
 
     }
@@ -71,5 +77,15 @@ public class Player : MonoBehaviour
 
         Instantiate(bombPrefab, spawnPos, Quaternion.identity);
     }
+    void WarpTowardsTarget(Transform target, float ratio)
+    {
+        ratio = Mathf.Clamp01(ratio);
 
+        Vector3 startPos = transform.position;
+        Vector3 targetPos = target.position;
+
+        Vector3 newPos = Vector3.Lerp(startPos, targetPos, ratio);
+
+        transform.position = newPos;
+    }
 }
