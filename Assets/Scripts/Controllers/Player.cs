@@ -9,6 +9,7 @@ public class Player : MonoBehaviour
     public Transform enemyTransform;
     public GameObject bombPrefab;
     public List<Transform> asteroidTransforms;
+    public float maxRange = 10f;
 
     public float BombTrailSpacing = 3f;
     public int numberOfTrailBombs = 4;
@@ -36,6 +37,10 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.W))
         {
             WarpTowardsTarget(enemyTransform, warpRatio);
+        }
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            DrawAstroidLines(asteroidTransforms, maxRange);
         }
 
     }
@@ -87,5 +92,28 @@ public class Player : MonoBehaviour
         Vector3 newPos = Vector3.Lerp(startPos, targetPos, ratio);
 
         transform.position = newPos;
+    }
+
+    void DrawAstroidLines(List<Transform> inAsteroids, float inMaxRange)
+    {
+        if (inAsteroids == null || inAsteroids.Count == 0) return;
+
+        Vector3 playerPos = transform.position;
+
+        foreach (Transform asteroid in inAsteroids)
+        {
+
+            float dist = Vector3.Distance(playerPos, asteroid.position);
+
+            if(dist < inMaxRange)
+            {
+                Vector3 dir = (asteroid.position - playerPos).normalized;
+
+                Vector3 lineEnd = playerPos + dir * 2.5f;
+
+                Debug.DrawLine(playerPos, lineEnd, Color.green, 10f);
+
+            }
+        }
     }
 }
