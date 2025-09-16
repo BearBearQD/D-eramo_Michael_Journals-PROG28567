@@ -13,6 +13,8 @@ public class Player : MonoBehaviour
     public float BombTrailSpacing = 3f;
     public int numberOfTrailBombs = 4;
 
+    public float spawnDistance;
+
     // Update is called once per frame
     void Update()
     {
@@ -25,7 +27,10 @@ public class Player : MonoBehaviour
         {
             SpawnBombTrail(BombTrailSpacing, numberOfTrailBombs);
         }
-
+        if(Input.GetKeyDown(KeyCode.C))
+        {
+            SpawnBombAtRandomCorner(spawnDistance);
+        }
 
     }
     void SpawnBombAtOffset(Vector3 inOffset)
@@ -45,6 +50,26 @@ public class Player : MonoBehaviour
             Instantiate(bombPrefab, spawnPos, Quaternion.identity);
             Debug.Log(i);
         }
+    }
+
+    void SpawnBombAtRandomCorner(float inDistance)
+    {
+        if (bombPrefab == null) return;
+
+        Vector3[] cornerOffsets = new Vector3[]
+        {
+            new Vector3(-1,1,0), // Top left
+            new Vector3(1,1,0), // Top right
+            new Vector3(-1,-1,0), // Bottom left
+            new Vector3(1,-1,0) // Bottom right
+        };
+
+        int randomCornerPick = Random.Range(0, cornerOffsets.Length);
+        Vector3 chosenDirection = cornerOffsets[randomCornerPick].normalized;
+
+        Vector3 spawnPos = transform.position + chosenDirection * inDistance;
+
+        Instantiate(bombPrefab, spawnPos, Quaternion.identity);
     }
 
 }
