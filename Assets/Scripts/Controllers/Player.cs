@@ -19,10 +19,6 @@ public class Player : MonoBehaviour
     private float deceleration = 1f;
     public Vector2 lastDirection = Vector2.zero;
 
-
-
-
-
     // Update is called once per frame
     void Update()
     {
