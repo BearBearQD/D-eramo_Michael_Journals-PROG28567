@@ -31,11 +31,11 @@ public class Enemy : MonoBehaviour
         }
         if (distance <= circle_distance && distance >= stopdistance)
         {
-            print("mid distance");
+           // print("mid distance");
             if (randomdirection == Vector2.zero || Random.Range(0, 100) < 2)
             {
                 randomdirection = new Vector2(Random.Range(-5, 5), Random.Range(-5, 5)).normalized;
-                print("random deir");
+               // print("random deir");
             }
             transform.Translate(randomdirection * speed * Time.deltaTime);
         }
@@ -50,7 +50,7 @@ public class Enemy : MonoBehaviour
         }
         else
         {
-            print(distance);
+          //  print(distance);
         }
     }
 }
