@@ -1,10 +1,5 @@
 ﻿using System.Collections.Generic;
-using TreeEditor;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.UIElements;
-using static System.Runtime.CompilerServices.RuntimeHelpers;
 
 public class Player : MonoBehaviour
 {
@@ -21,7 +16,7 @@ public class Player : MonoBehaviour
     public float accleartion = 0.7f;
     public float MAXSPEED = 30;
     public float speed = 0.5f;
-    public float deceleration = 0.0001f;
+    private float deceleration = 1f;
     public Vector2 lastDirection = Vector2.zero;
 
 
@@ -90,7 +85,7 @@ public class Player : MonoBehaviour
         }
         else if (movement == Vector2.zero && speed > 0.5f)
         {
-            speed -= deceleration ;
+            speed -= deceleration;
            transform.Translate(lastDirection * speed * Time.deltaTime);
         }
         transform.Translate(movement * speed * Time.deltaTime);
