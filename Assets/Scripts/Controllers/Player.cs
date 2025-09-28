@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using TreeEditor;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 using static System.Runtime.CompilerServices.RuntimeHelpers;
 
@@ -13,10 +15,18 @@ public class Player : MonoBehaviour
 
     public float BombTrailSpacing = 3f;
     public int numberOfTrailBombs = 4;
-
+    public float spawnDistance = 1;
     public float warpRatio = 0.5f;
 
-    public float spawnDistance;
+    public float accleartion = 0.7f;
+    public float MAXSPEED = 30;
+    public float speed = 0.5f;
+    public float deceleration = 0.0001f;
+    public Vector2 lastDirection = Vector2.zero;
+
+
+
+
 
     // Update is called once per frame
     void Update()
@@ -42,8 +52,51 @@ public class Player : MonoBehaviour
         {
             DrawAstroidLines(asteroidTransforms, maxRange);
         }
+        Playermovement();
 
     }
+    public void Playermovement()
+    {
+        Vector2 movement = Vector2.zero;
+        if (Input.GetKey("up"))
+        {
+            movement += Vector2.up;
+        }
+        if (Input.GetKey("down"))
+        {
+            movement += Vector2.down;
+        }
+        if (Input.GetKey("right"))
+        {
+            movement += Vector2.right;
+        }
+        if (Input.GetKey("left"))
+        {
+            movement += Vector2.left;
+        }
+        if (movement != Vector2.zero && speed <= MAXSPEED)
+        {
+            if (speed ==0)
+            {
+                speed = 0.5f;
+            }
+            else
+            {
+                movement = movement.normalized;
+                lastDirection = movement;
+                speed += accleartion;
+                print(speed);
+            }
+        }
+        else if (movement == Vector2.zero && speed > 0.5f)
+        {
+            speed -= deceleration ;
+           transform.Translate(lastDirection * speed * Time.deltaTime);
+        }
+        transform.Translate(movement * speed * Time.deltaTime);
+
+    }
+
     void SpawnBombAtOffset(Vector3 inOffset)
     {
         Vector2 spawnPosition = transform.position + inOffset;
