@@ -23,21 +23,25 @@ public class Player : MonoBehaviour
     public float radarRadius = 5f;
     public int circlepoints = 8;
 
+    public GameObject powerupprefabs;
+    public float powerupradius = 4f;
+    public int numpowerupradius = 4;
+    private List<GameObject> spawnpower = new List<GameObject>();
 
 
     // Update is called once per frame
     void Update()
     {
-        if ( Input.GetKeyDown(KeyCode.B))
+        if (Input.GetKeyDown(KeyCode.B))
         {
             SpawnBombAtOffset(new Vector3(0, 1));
         }
 
-        if(Input.GetKeyDown(KeyCode.T))
+        if (Input.GetKeyDown(KeyCode.T))
         {
             SpawnBombTrail(BombTrailSpacing, numberOfTrailBombs);
         }
-        if(Input.GetKeyDown(KeyCode.C))
+        if (Input.GetKeyDown(KeyCode.C))
         {
             SpawnBombAtRandomCorner(spawnDistance);
         }
@@ -51,6 +55,7 @@ public class Player : MonoBehaviour
         }
         Playermovement();
         EnemyRader(radarRadius, circlepoints);
+        SpawnPowerup(powerupradius, numpowerupradius);
     }
     public void Playermovement()
     {
@@ -73,7 +78,7 @@ public class Player : MonoBehaviour
         }
         if (movement != Vector2.zero && speed <= MAXSPEED)
         {
-            if (speed ==0)
+            if (speed == 0)
             {
                 speed = 0.5f;
             }
@@ -88,7 +93,7 @@ public class Player : MonoBehaviour
         else if (movement == Vector2.zero && speed > 0.5f)
         {
             speed -= deceleration;
-           transform.Translate(lastDirection * speed * Time.deltaTime);
+            transform.Translate(lastDirection * speed * Time.deltaTime);
         }
         transform.Translate(movement * speed * Time.deltaTime);
 
@@ -105,9 +110,9 @@ public class Player : MonoBehaviour
     {
         if (bombPrefab == null) return;
 
-        for(int i = 0; i < numberOfBombs; i++)
+        for (int i = 0; i < numberOfBombs; i++)
         {
-            Vector3 spawnPos = new Vector3 (transform.position.x, transform.position.y - bombSpacing * (i + 1), 0);
+            Vector3 spawnPos = new Vector3(transform.position.x, transform.position.y - bombSpacing * (i + 1), 0);
             Instantiate(bombPrefab, spawnPos, Quaternion.identity);
             Debug.Log(i);
         }
@@ -155,7 +160,7 @@ public class Player : MonoBehaviour
 
             float dist = Vector3.Distance(playerPos, asteroid.position);
 
-            if(dist < inMaxRange)
+            if (dist < inMaxRange)
             {
                 Vector3 dir = (asteroid.position - playerPos).normalized;
 
@@ -167,7 +172,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    bool Enemyin (Vector2 enemypos, Vector2[] polygen)
+    bool Enemyin(Vector2 enemypos, Vector2[] polygen)
     {
         int cross = 0;
         int count = polygen.Length;
@@ -175,7 +180,7 @@ public class Player : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             Vector2 A = polygen[i];
-            Vector2 B = polygen[(i + 1)% circlepoints];
+            Vector2 B = polygen[(i + 1) % circlepoints];
 
             if ((enemypos.y > Mathf.Min(A.y, B.y)) && (enemypos.y <= Mathf.Max(A.y, B.y)))
             {
@@ -201,10 +206,10 @@ public class Player : MonoBehaviour
         }
     }
 
-    void EnemyRader(float Radius,int circlepoints)
+    void EnemyRader(float Radius, int circlepoints)
     {
-        Vector2 playepos=transform.position;
-        Vector2[] polygen= new Vector2[circlepoints];
+        Vector2 playepos = transform.position;
+        Vector2[] polygen = new Vector2[circlepoints];
 
         for (int i = 0; i < circlepoints; i++)
         {
@@ -220,7 +225,7 @@ public class Player : MonoBehaviour
             for (int i = 0; i < circlepoints; i++)
             {
                 Vector2 p1 = polygen[i];
-                Vector2 p2 = polygen[(i + 1)%circlepoints];
+                Vector2 p2 = polygen[(i + 1) % circlepoints];
                 Debug.DrawLine(p1, p2, color1);
             }
         }
@@ -235,8 +240,32 @@ public class Player : MonoBehaviour
                 Debug.DrawLine(p1, p2, color);
             }
         }
-        
-        
+
+
     }
-    
+
+    void SpawnPowerup(float radius, int numberofpowerups)
+    {
+        Vector2 playerpos = transform.position;
+        bool initialized = false;
+        if (initialized == false)
+        {
+            for (int i = 0; i < numberofpowerups; i++)
+            {
+                float angle = (2 * Mathf.PI / numberofpowerups) * i;
+                Vector2 spownpos = playerpos + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
+                GameObject power = Instantiate(powerupprefabs, spownpos, Quaternion.identity);
+                spawnpower.Add(power);
+
+            }
+            initialized = true;
+        }
+
+        for (int i = 0; i < spawnpower.Count; i++)
+        {
+            float angle = (2 * Mathf.PI / numberofpowerups) * i;
+            Vector2 spownpos = playerpos + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
+            spawnpower[i].transform.position = spownpos;
+        }
+    }
 }
