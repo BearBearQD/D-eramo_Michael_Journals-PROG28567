@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -18,6 +19,11 @@ public class Player : MonoBehaviour
     public float speed = 0.5f;
     private float deceleration = 1f;
     public Vector2 lastDirection = Vector2.zero;
+
+    public float radarRadius = 5f;
+    public int circlepoints = 8;
+
+
 
     // Update is called once per frame
     void Update()
@@ -44,7 +50,7 @@ public class Player : MonoBehaviour
             DrawAstroidLines(asteroidTransforms, maxRange);
         }
         Playermovement();
-
+        EnemyRader(radarRadius, circlepoints);
     }
     public void Playermovement()
     {
@@ -160,4 +166,77 @@ public class Player : MonoBehaviour
             }
         }
     }
+
+    bool Enemyin (Vector2 enemypos, Vector2[] polygen)
+    {
+        int cross = 0;
+        int count = polygen.Length;
+
+        for (int i = 0; i < count; i++)
+        {
+            Vector2 A = polygen[i];
+            Vector2 B = polygen[(i + 1)% circlepoints];
+
+            if ((enemypos.y > Mathf.Min(A.y, B.y)) && (enemypos.y <= Mathf.Max(A.y, B.y)))
+            {
+                float intersection = A.x + (enemypos.y - A.y) * (B.x - A.x) / (B.y - A.y);
+
+                if (intersection > enemypos.x)
+                {
+                    cross++;
+                }
+                else if (intersection == enemypos.x)
+                {
+                    return true;
+                }
+            }
+        }
+        if ((cross % 2) != 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    void EnemyRader(float Radius,int circlepoints)
+    {
+        Vector2 playepos=transform.position;
+        Vector2[] polygen= new Vector2[circlepoints];
+
+        for (int i = 0; i < circlepoints; i++)
+        {
+            float angle = (2 * Mathf.PI / circlepoints) * i;
+            polygen[i] = playepos + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * Radius;
+        }
+
+        bool Enemyinside = Enemyin(enemyTransform.position, polygen);
+
+        if (Enemyinside == true)
+        {
+            Color color1 = Color.red;
+            for (int i = 0; i < circlepoints; i++)
+            {
+                Vector2 p1 = polygen[i];
+                Vector2 p2 = polygen[(i + 1)%circlepoints];
+                Debug.DrawLine(p1, p2, color1);
+            }
+        }
+
+        if (Enemyinside == false)
+        {
+            Color color = Color.green;
+            for (int i = 0; i < circlepoints; i++)
+            {
+                Vector2 p1 = polygen[i];
+                Vector2 p2 = polygen[(i + 1) % circlepoints];
+                Debug.DrawLine(p1, p2, color);
+            }
+        }
+        
+        
+    }
+    
 }
