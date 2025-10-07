@@ -28,6 +28,9 @@ public class Player : MonoBehaviour
     public int numpowerupradius = 4;
     private List<GameObject> spawnpower = new List<GameObject>();
 
+    public GameObject bulletPrefab;
+    public Transform shootpoint;
+
 
     // Update is called once per frame
     void Update()
@@ -52,6 +55,10 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.L))
         {
             DrawAstroidLines(asteroidTransforms, maxRange);
+        }
+        if (Input.GetButton("Fire1"))
+        {
+            Shoot();
         }
         Playermovement();
         EnemyRader(radarRadius, circlepoints);
@@ -267,5 +274,10 @@ public class Player : MonoBehaviour
             Vector2 spownpos = playerpos + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
             spawnpower[i].transform.position = spownpos;
         }
+    }
+
+    void Shoot()
+    {
+        Instantiate(bulletPrefab, shootpoint.position, Quaternion.identity);
     }
 }
