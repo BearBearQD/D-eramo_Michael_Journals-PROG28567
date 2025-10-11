@@ -60,6 +60,7 @@ public class Player : MonoBehaviour
         {
             Shoot();
         }
+        PlayerRotation();
         Playermovement();
         EnemyRader(radarRadius, circlepoints);
         SpawnPowerup(powerupradius, numpowerupradius);
@@ -106,6 +107,15 @@ public class Player : MonoBehaviour
 
     }
 
+    public void PlayerRotation()
+    {
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        Vector2 lookDir = mousePos - transform.position;
+
+        float angle = Mathf.Atan2(lookDir.x, lookDir.y) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0, 0, -angle);
+    }
     void SpawnBombAtOffset(Vector3 inOffset)
     {
         Vector2 spawnPosition = transform.position + inOffset;
@@ -278,6 +288,6 @@ public class Player : MonoBehaviour
 
     void Shoot()
     {
-        Instantiate(bulletPrefab, shootpoint.position, Quaternion.identity);
+        Instantiate(bulletPrefab, shootpoint.position, transform.rotation);
     }
 }
