@@ -30,7 +30,16 @@ public class Player : MonoBehaviour
 
     public GameObject bulletPrefab;
     public Transform shootpoint;
+    public float fireRate = 0.2f;
+    private float nextFireTime = 0f;
 
+    public int magazineSize = 10;
+    private int currentAmmo;
+
+    private void Start()
+    {
+        currentAmmo = magazineSize;
+    }
 
     // Update is called once per frame
     void Update()
@@ -56,9 +65,15 @@ public class Player : MonoBehaviour
         {
             DrawAstroidLines(asteroidTransforms, maxRange);
         }
-        if (Input.GetButton("Fire1"))
+        if(Input.GetKey(KeyCode.R))
+        {
+            currentAmmo = magazineSize;
+        }
+        if (Input.GetButton("Fire1") && Time.time > nextFireTime && currentAmmo>0)
         {
             Shoot();
+            nextFireTime = Time.time + fireRate;
+            currentAmmo--;
         }
         PlayerRotation();
         Playermovement();
