@@ -10,10 +10,12 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed = 5f;
     private Rigidbody2D rb;
     private FacingDirection facing = FacingDirection.right;
+    private Animator anim;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
     }
 
     void Update()
@@ -23,6 +25,8 @@ public class PlayerController : MonoBehaviour
         // manage the actual movement of the character.
         Vector2 playerInput = new Vector2(Input.GetAxisRaw("Horizontal"), 0f);
         MovementUpdate(playerInput);
+
+        anim.SetBool("IsWalking", IsWalking());
     }
 
     private void MovementUpdate(Vector2 playerInput)
@@ -37,11 +41,16 @@ public class PlayerController : MonoBehaviour
 
     public bool IsWalking()
     {
-        return Mathf.Abs(rb.angularVelocity) > 0.1f ;
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
+        {
+            return true;
+        }
+        else { return false; }
+            
     }
     public bool IsGrounded()
     {
-        return false;
+        return true;
     }
 
     public FacingDirection GetFacingDirection()
