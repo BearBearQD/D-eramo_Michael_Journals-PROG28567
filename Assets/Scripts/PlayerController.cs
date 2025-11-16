@@ -12,6 +12,8 @@ public class PlayerController : MonoBehaviour
     private FacingDirection facing = FacingDirection.right;
     private Animator anim;
 
+    public bool grounded = false;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -48,9 +50,28 @@ public class PlayerController : MonoBehaviour
         else { return false; }
             
     }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if(collision.collider.CompareTag("Ground"))
+        {
+            grounded = true;
+        }
+
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        if(collision.collider.CompareTag("Ground"))
+        {
+            grounded = false;
+        }
+    }
+
+
     public bool IsGrounded()
     {
-        return true;
+        return grounded;
     }
 
     public FacingDirection GetFacingDirection()
