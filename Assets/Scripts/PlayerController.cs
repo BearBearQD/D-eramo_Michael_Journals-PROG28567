@@ -16,6 +16,9 @@ public class PlayerController : MonoBehaviour
 
     public float apexheight = 3f;
     public float apexTime = 0.5f;
+    public float terminalSpeed = 10f;
+    public float coyoteTime = 0.2f;
+
 
     private float jumpGravity;
     private float initialJumpVelocity;
@@ -42,10 +45,12 @@ public class PlayerController : MonoBehaviour
         MovementUpdate(playerInput);
 
         anim.SetBool("IsWalking", IsWalking());
+        print(VerticaljumpVelocity);
     }
 
     private void MovementUpdate(Vector2 playerInput)
     {
+        Jumpmotion(playerInput);
         rb.linearVelocity = new Vector2(playerInput.x * moveSpeed, VerticaljumpVelocity);
 
         if (playerInput.x > 0)
@@ -53,7 +58,7 @@ public class PlayerController : MonoBehaviour
         else if (playerInput.x < 0)
             facing = FacingDirection.left;
 
-        Jumpmotion(playerInput);
+        VerticaljumpVelocity = Mathf.Max(VerticaljumpVelocity, -terminalSpeed);
 
     }
 
