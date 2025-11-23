@@ -45,7 +45,6 @@ public class PlayerController : MonoBehaviour
         MovementUpdate(playerInput);
 
         anim.SetBool("IsWalking", IsWalking());
-        print(VerticaljumpVelocity);
     }
 
     private void MovementUpdate(Vector2 playerInput)
