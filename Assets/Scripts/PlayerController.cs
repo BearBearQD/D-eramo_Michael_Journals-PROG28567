@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour
     public float terminalSpeed = 10f;
     public float coyoteTime = 0.2f;
 
-
+    private float coyotetimer = 0f;
     private float jumpGravity;
     private float initialJumpVelocity;
     private float VerticaljumpVelocity;
@@ -50,7 +50,17 @@ public class PlayerController : MonoBehaviour
 
     private void MovementUpdate(Vector2 playerInput)
     {
+        if (!grounded)
+        {
+            coyotetimer -= Time.deltaTime;
+        }
+        else
+        {
+            coyotetimer = coyoteTime;
+        }
+
         Jumpmotion(playerInput);
+
         rb.linearVelocity = new Vector2(playerInput.x * moveSpeed, VerticaljumpVelocity);
 
         if (playerInput.x > 0)
@@ -104,7 +114,7 @@ public class PlayerController : MonoBehaviour
 
     private void Jumpmotion(Vector2 movementInput)
     {
-        if (movementInput.y > 0f && grounded)
+        if (movementInput.y > 0f && coyotetimer>0f)
         { isjump = true;
             grounded = false;
             VerticaljumpVelocity = initialJumpVelocity;
