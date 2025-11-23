@@ -14,10 +14,23 @@ public class PlayerController : MonoBehaviour
 
     public bool grounded = false;
 
+    public float apexheight = 3f;
+    public float apexTime = 0.5f;
+
+    private float jumpGravity;
+    private float initialJumpVelocity;
+    private float VerticaljumpVelocity;
+    private bool isjump = false;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+
+        jumpGravity = -2f * apexheight/(apexTime*apexTime);
+        initialJumpVelocity = 2f * apexheight / apexTime;
+
+        rb.gravityScale = 0f;
     }
 
     void Update()
@@ -25,7 +38,7 @@ public class PlayerController : MonoBehaviour
         // The input from the player needs to be determined and
         // then passed in the to the MovementUpdate which should
         // manage the actual movement of the character.
-        Vector2 playerInput = new Vector2(Input.GetAxisRaw("Horizontal"), 0f);
+        Vector2 playerInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Jump"));
         MovementUpdate(playerInput);
 
         anim.SetBool("IsWalking", IsWalking());
@@ -33,12 +46,15 @@ public class PlayerController : MonoBehaviour
 
     private void MovementUpdate(Vector2 playerInput)
     {
-        rb.linearVelocity = new Vector2(playerInput.x * moveSpeed, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(playerInput.x * moveSpeed, VerticaljumpVelocity);
 
         if (playerInput.x > 0)
             facing = FacingDirection.right;
         else if (playerInput.x < 0)
             facing = FacingDirection.left;
+
+        Jumpmotion(playerInput);
+
     }
 
     public bool IsWalking()
@@ -56,11 +72,13 @@ public class PlayerController : MonoBehaviour
         if(collision.collider.CompareTag("Ground"))
         {
             grounded = true;
+            isjump = false;
+            VerticaljumpVelocity = 0f;
         }
 
     }
 
-    private void OnCollisionExit(Collision collision)
+    private void OnCollisionExit2D(Collision2D collision)
     {
         if(collision.collider.CompareTag("Ground"))
         {
@@ -77,5 +95,27 @@ public class PlayerController : MonoBehaviour
     public FacingDirection GetFacingDirection()
     {
         return facing;
+    }
+
+    private void Jumpmotion(Vector2 movementInput)
+    {
+        if (movementInput.y > 0f && grounded)
+        { isjump = true;
+            grounded = false;
+            VerticaljumpVelocity = initialJumpVelocity;
+        }
+        
+        if (!grounded)
+        {
+            VerticaljumpVelocity += jumpGravity * Time.deltaTime;
+        }
+
+        else
+        {
+            if (!isjump)
+            {
+                VerticaljumpVelocity = 0f;
+            }
+        }
     }
 }
