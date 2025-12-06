@@ -36,6 +36,11 @@ public class PlayerController : MonoBehaviour
     public int maxJumps = 3;
     public int jumpsRemaining;
 
+    public GameObject ballPrefab;
+    public Transform spawnPoint;
+    public float spawnCooldown = 1f;
+    private float nextSpawnTime = 0f;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -53,10 +58,13 @@ public class PlayerController : MonoBehaviour
         // The input from the player needs to be determined and
         // then passed in the to the MovementUpdate which should
         // manage the actual movement of the character.
-        Vector2 playerInput = new Vector2(Input.GetAxisRaw("Horizontal"),0);
+        Vector2 playerInput = new Vector2(Input.GetAxisRaw("Horizontal"), 0);
         MovementUpdate(playerInput);
 
-
+        if (!grounded && Time.time >= nextSpawnTime && Input.GetKeyDown(KeyCode.F))
+        {
+            SpawnBall();
+        }
 
         anim.SetBool("IsWalking", IsWalking());
 
@@ -205,5 +213,12 @@ public class PlayerController : MonoBehaviour
         VerticaljumpVelocity = initialJumpVelocity;
 
         jumpsRemaining--;
+    }
+
+    private void SpawnBall()
+    {
+        nextSpawnTime = Time.time + spawnCooldown;
+        Vector3 spawnPos = new Vector3(spawnPoint.position.x, spawnPoint.position.y, 0);
+        Instantiate(ballPrefab, spawnPos, Quaternion.identity);
     }
 }
