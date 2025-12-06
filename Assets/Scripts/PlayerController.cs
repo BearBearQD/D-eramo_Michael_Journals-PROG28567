@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Timers;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -25,6 +27,12 @@ public class PlayerController : MonoBehaviour
     private float VerticaljumpVelocity;
     private bool isjump = false;
 
+    public float dashForce = 20f;
+    public float dashCooldown = 1f;
+    public float dashDuration = 0.15f;
+    private float nextDashTime = 0f;
+    private bool isDashing;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -45,6 +53,11 @@ public class PlayerController : MonoBehaviour
         MovementUpdate(playerInput);
 
         anim.SetBool("IsWalking", IsWalking());
+
+        if(Input.GetKeyDown(KeyCode.E) && Time.time >= nextDashTime)
+        {
+            Dash();
+        }
     }
 
     private void MovementUpdate(Vector2 playerInput)
@@ -131,5 +144,42 @@ public class PlayerController : MonoBehaviour
                 VerticaljumpVelocity = 0f;
             }
         }
+    }
+
+    private void Dash()
+    {
+        if (isDashing)
+        {
+            return;
+        }
+
+        nextDashTime = Time.time + dashCooldown;
+        StartCoroutine(DashRoutine());
+    }
+
+    private IEnumerator DashRoutine()
+    {
+        isDashing = true;
+
+        float dashDirection = (facing == FacingDirection.right) ? 1f : -1f;
+        float elapsed = 0f;
+
+        float storedGravity = rb.gravityScale;
+        rb.gravityScale = 0f;
+
+        while (elapsed < dashDuration)
+        {
+            float t = elapsed / dashDuration;
+            float smoothSpeed = Mathf.Lerp(dashForce, 0, t);
+
+            rb.linearVelocity = new Vector2(smoothSpeed * dashDirection, 0f);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        rb.gravityScale = storedGravity;
+
+        isDashing = false;
     }
 }
