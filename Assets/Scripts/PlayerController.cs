@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Timers;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -25,6 +27,20 @@ public class PlayerController : MonoBehaviour
     private float VerticaljumpVelocity;
     private bool isjump = false;
 
+    public float dashForce = 20f;
+    public float dashCooldown = 1f;
+    public float dashDuration = 0.15f;
+    private float nextDashTime = 0f;
+    private bool isDashing;
+
+    public int maxJumps = 3;
+    public int jumpsRemaining;
+
+    public GameObject ballPrefab;
+    public Transform spawnPoint;
+    public float spawnCooldown = 1f;
+    private float nextSpawnTime = 0f;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -32,6 +48,7 @@ public class PlayerController : MonoBehaviour
 
         jumpGravity = -2f * apexheight/(apexTime*apexTime);
         initialJumpVelocity = 2f * apexheight / apexTime;
+        jumpsRemaining = maxJumps;
 
         rb.gravityScale = 0f;
     }
@@ -41,10 +58,20 @@ public class PlayerController : MonoBehaviour
         // The input from the player needs to be determined and
         // then passed in the to the MovementUpdate which should
         // manage the actual movement of the character.
-        Vector2 playerInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Jump"));
+        Vector2 playerInput = new Vector2(Input.GetAxisRaw("Horizontal"), 0);
         MovementUpdate(playerInput);
 
+        if (!grounded && Time.time >= nextSpawnTime && Input.GetKeyDown(KeyCode.F))
+        {
+            SpawnBall();
+        }
+
         anim.SetBool("IsWalking", IsWalking());
+
+        if(Input.GetKeyDown(KeyCode.E) && Time.time >= nextDashTime)
+        {
+            Dash();
+        }
     }
 
     private void MovementUpdate(Vector2 playerInput)
@@ -58,7 +85,7 @@ public class PlayerController : MonoBehaviour
             coyotetimer = coyoteTime;
         }
 
-        Jumpmotion(playerInput);
+        Jumpmotion();
 
         rb.linearVelocity = new Vector2(playerInput.x * moveSpeed, VerticaljumpVelocity);
 
@@ -88,6 +115,7 @@ public class PlayerController : MonoBehaviour
             grounded = true;
             isjump = false;
             VerticaljumpVelocity = 0f;
+            jumpsRemaining = maxJumps;
         }
 
     }
@@ -111,17 +139,25 @@ public class PlayerController : MonoBehaviour
         return facing;
     }
 
-    private void Jumpmotion(Vector2 movementInput)
+    private void Jumpmotion()
     {
-        if (movementInput.y > 0f && coyotetimer>0f)
-        { isjump = true;
-            grounded = false;
-            VerticaljumpVelocity = initialJumpVelocity;
+        if (Input.GetKeyDown(KeyCode.Space) && jumpsRemaining == maxJumps)
+        {
+            if (grounded && coyotetimer > 0f)
+            {
+
+                DoJump();
+                return;
+            }
         }
-        
+        if (Input.GetKeyDown(KeyCode.Space) && !grounded && jumpsRemaining > 0)
+        {
+            DoJump();
+        }
+
         if (!grounded)
         {
-            VerticaljumpVelocity += jumpGravity * Time.deltaTime;
+            VerticaljumpVelocity += jumpGravity * Time.deltaTime;;
         }
 
         else
@@ -131,5 +167,58 @@ public class PlayerController : MonoBehaviour
                 VerticaljumpVelocity = 0f;
             }
         }
+    }
+
+    private void Dash()
+    {
+        if (isDashing)
+        {
+            return;
+        }
+
+        nextDashTime = Time.time + dashCooldown;
+        StartCoroutine(DashRoutine());
+    }
+
+    private IEnumerator DashRoutine()
+    {
+        isDashing = true;
+
+        float dashDirection = (facing == FacingDirection.right) ? 1f : -1f;
+        float elapsed = 0f;
+
+        float storedGravity = rb.gravityScale;
+        rb.gravityScale = 0f;
+
+        while (elapsed < dashDuration)
+        {
+            float t = elapsed / dashDuration;
+            float smoothSpeed = Mathf.Lerp(dashForce, 0, t);
+
+            rb.linearVelocity = new Vector2(smoothSpeed * dashDirection, 0f);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        rb.gravityScale = storedGravity;
+
+        isDashing = false;
+    }
+
+    private void DoJump()
+    {
+        isjump = true;
+        grounded = false;
+        VerticaljumpVelocity = initialJumpVelocity;
+
+        jumpsRemaining--;
+    }
+
+    private void SpawnBall()
+    {
+        nextSpawnTime = Time.time + spawnCooldown;
+        Vector3 spawnPos = new Vector3(spawnPoint.position.x, spawnPoint.position.y, 0);
+        Instantiate(ballPrefab, spawnPos, Quaternion.identity);
     }
 }
